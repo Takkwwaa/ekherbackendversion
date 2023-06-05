@@ -20,14 +20,14 @@ use Carbon\CarbonImmutable;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ApiResource(
-    operations: [
-        new Get(normalizationContext: ["groups" => ["read"]], outputFormats: ["json"]),
-        new Post(denormalizationContext: ["groups" => ["write"]]),
-        new Put(denormalizationContext: ["groups" => ["write"]]),
-        new Patch(denormalizationContext: ["groups" => ["write"]]),
-        new Delete()
-    ]
+    normalizationContext: ['groups' => ['read']],
+    denormalizationContext: ['groups' => ['write']],
 )]
+#[Get(outputFormats: ["json"])]
+#[Post()]
+#[Put()]
+#[Patch()]
+#[Delete()]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -36,54 +36,63 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
-    #[Groups(["read"], ["write"])]
+    #[Groups(['read', 'write'])]
     private ?string $email = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(["read"], ["write"])]
+    #[Groups(['read', 'write'])]
     private ?string $userName = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    #[Groups(["read"], ["write"])]
+    #[Groups(['read', 'write'])]
     private ?\DateTimeInterface $birthDate = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(["read"], ["write"])]
+    #[Groups(['read', 'write'])]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(["read"], ["write"])]
+    #[Groups(['read', 'write'])]
     private ?string $lastName = null;
 
-    #[Groups(["read"])]
+
     #[ORM\Column]
+    #[Groups(['read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
-    #[Groups(["read"])]
+
     #[ORM\Column]
+    #[Groups(['read'])]
     private ?bool $isEnabled = null;
 
-    #[Groups(["read"])]
+
     #[ORM\Column(nullable: true)]
+    #[Groups(['read'])]
     private array $roles = [];
 
     /**
      * @var string The hashed password
      */
     #[ORM\Column]
-    #[Groups(["write"])]
+    #[Groups(['read', 'write'])]
     private ?string $password = null;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Ratings::class, orphanRemoval: true)]
     private Collection $ratings;
 
-    #[Groups(["read"])]
+
     #[ORM\Column(length: 1, nullable: true)]
+    #[Groups(['read', 'write'])]
     private ?string $gender = null;
 
     #[ORM\OneToOne(inversedBy: 'user', cascade: ['persist', 'remove'])]
+    #[Groups(['read', 'write'])]
     private ?Localisation $localisation = null;
 
+    #[ORM\OneToOne(inversedBy: 'user', cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['read', 'write'])]
+    private ?Picture $avatar = null;
 
 
     /**
@@ -113,6 +122,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->isEnabled = 1;
         $this->createdAt =  CarbonImmutable::now();
         $this->ratings = new ArrayCollection();
+        $this->localisation = new Localisation();
+        $this->gender = "";
+        $this->avatar = new Picture();
     }
     /**
      * A visual identifier that represents this user.
@@ -289,6 +301,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setLocalisation(?Localisation $localisation): self
     {
         $this->localisation = $localisation;
+
+        return $this;
+    }
+
+    public function getAvatar(): ?Picture
+    {
+        return $this->avatar;
+    }
+
+    public function setAvatar(Picture $avatar): self
+    {
+        $this->avatar = $avatar;
 
         return $this;
     }

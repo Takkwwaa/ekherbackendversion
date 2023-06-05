@@ -29,6 +29,11 @@ class Localisation
 
     #[ORM\OneToOne(mappedBy: 'localisation', cascade: ['persist', 'remove'])]
     private ?User $user = null;
+    public function __construct()
+    {
+        $this->city = '';
+        $this->region = '';
+    }
 
     public function getId(): ?int
     {
