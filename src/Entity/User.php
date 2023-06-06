@@ -14,6 +14,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Put;
 use Carbon\CarbonImmutable;
@@ -28,6 +29,7 @@ use Carbon\CarbonImmutable;
 #[Put()]
 #[Patch()]
 #[Delete()]
+#[GetCollection(outputFormats: ["json"])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -77,9 +79,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['read', 'write'])]
     private ?string $password = null;
 
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Ratings::class, orphanRemoval: true)]
-    private Collection $ratings;
-
 
     #[ORM\Column(length: 1, nullable: true)]
     #[Groups(['read', 'write'])]
@@ -121,7 +120,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->isEnabled = 1;
         $this->createdAt =  CarbonImmutable::now();
-        $this->ratings = new ArrayCollection();
         $this->localisation = new Localisation();
         $this->gender = "";
         $this->avatar = new Picture();
@@ -251,35 +249,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // $this->plainPassword = null;
     }
 
-    /**
-     * @return Collection<int, Ratings>
-     */
-    public function getRatings(): Collection
-    {
-        return $this->ratings;
-    }
 
-    public function addRating(Ratings $rating): self
-    {
-        if (!$this->ratings->contains($rating)) {
-            $this->ratings->add($rating);
-            $rating->setUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeRating(Ratings $rating): self
-    {
-        if ($this->ratings->removeElement($rating)) {
-            // set the owning side to null (unless already changed)
-            if ($rating->getUser() === $this) {
-                $rating->setUser(null);
-            }
-        }
-
-        return $this;
-    }
 
     public function getGender(): ?string
     {

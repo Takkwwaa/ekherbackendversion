@@ -2,26 +2,26 @@
 
 namespace App\Repository;
 
-use App\Entity\Ratings;
+use App\Entity\RateRule;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Ratings>
+ * @extends ServiceEntityRepository<RateRule>
  *
- * @method Ratings|null find($id, $lockMode = null, $lockVersion = null)
- * @method Ratings|null findOneBy(array $criteria, array $orderBy = null)
- * @method Ratings[]    findAll()
- * @method Ratings[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method RateRule|null find($id, $lockMode = null, $lockVersion = null)
+ * @method RateRule|null findOneBy(array $criteria, array $orderBy = null)
+ * @method RateRule[]    findAll()
+ * @method RateRule[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class RatingsRepository extends ServiceEntityRepository
+class RateRuleRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Ratings::class);
+        parent::__construct($registry, RateRule::class);
     }
 
-    public function save(Ratings $entity, bool $flush = false): void
+    public function save(RateRule $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);
 
@@ -30,7 +30,7 @@ class RatingsRepository extends ServiceEntityRepository
         }
     }
 
-    public function remove(Ratings $entity, bool $flush = false): void
+    public function remove(RateRule $entity, bool $flush = false): void
     {
         $this->getEntityManager()->remove($entity);
 
@@ -40,7 +40,7 @@ class RatingsRepository extends ServiceEntityRepository
     }
 
 //    /**
-//     * @return Ratings[] Returns an array of Ratings objects
+//     * @return RateRule[] Returns an array of RateRule objects
 //     */
 //    public function findByExampleField($value): array
 //    {
@@ -54,7 +54,7 @@ class RatingsRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-//    public function findOneBySomeField($value): ?Ratings
+//    public function findOneBySomeField($value): ?RateRule
 //    {
 //        return $this->createQueryBuilder('r')
 //            ->andWhere('r.exampleField = :val')

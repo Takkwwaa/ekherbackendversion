@@ -3,14 +3,32 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Repository\StoreRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Carbon\CarbonImmutable;
+
 
 #[ORM\Entity(repositoryClass: StoreRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    normalizationContext: ['groups' => ['read']],
+    denormalizationContext: ['groups' => ['write']],
+)]
+#[Get(outputFormats: ["json"])]
+#[Post()]
+#[Put()]
+#[Patch()]
+#[Delete()]
+#[GetCollection(outputFormats: ["json"])]
 class Store
 {
     #[ORM\Id]
@@ -19,33 +37,49 @@ class Store
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['read', 'write'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['read', 'write'])]
     private ?string $email = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['read', 'write'])]
     private ?string $password = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['read', 'write'])]
     private ?string $phone = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Groups(['read', 'write'])]
     private ?string $description = null;
 
-    #[ORM\OneToMany(mappedBy: 'store', targetEntity: Ratings::class, orphanRemoval: true)]
-    private Collection $ratings;
 
     #[ORM\OneToOne(mappedBy: 'store', cascade: ['persist', 'remove'])]
+    #[Groups(['read', 'write'])]
     private ?Picture $logo = null;
 
     #[ORM\OneToMany(mappedBy: 'store', targetEntity: Gallery::class, orphanRemoval: true)]
+    #[Groups(['read', 'write'])]
     private Collection $pictures;
+
+    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    #[Groups(['read', 'write'])]
+    private ?Category $Category = null;
+
+    #[ORM\Column]
+    private ?bool $isEnabled = null;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $createdAt = null;
 
     public function __construct()
     {
-        $this->ratings = new ArrayCollection();
         $this->pictures = new ArrayCollection();
+        $this->isEnabled = 1;
+        $this->createdAt =  CarbonImmutable::now();
     }
 
     public function getId(): ?int
@@ -114,35 +148,8 @@ class Store
         return $this;
     }
 
-    /**
-     * @return Collection<int, Ratings>
-     */
-    public function getRatings(): Collection
-    {
-        return $this->ratings;
-    }
 
-    public function addRating(Ratings $rating): self
-    {
-        if (!$this->ratings->contains($rating)) {
-            $this->ratings->add($rating);
-            $rating->setStore($this);
-        }
 
-        return $this;
-    }
-
-    public function removeRating(Ratings $rating): self
-    {
-        if ($this->ratings->removeElement($rating)) {
-            // set the owning side to null (unless already changed)
-            if ($rating->getStore() === $this) {
-                $rating->setStore(null);
-            }
-        }
-
-        return $this;
-    }
 
     public function getLogo(): ?Picture
     {
@@ -192,6 +199,42 @@ class Store
                 $picture->setStore(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getCategory(): ?Category
+    {
+        return $this->Category;
+    }
+
+    public function setCategory(?Category $Category): self
+    {
+        $this->Category = $Category;
+
+        return $this;
+    }
+
+    public function isIsEnabled(): ?bool
+    {
+        return $this->isEnabled;
+    }
+
+    public function setIsEnabled(bool $isEnabled): self
+    {
+        $this->isEnabled = $isEnabled;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): self
+    {
+        $this->createdAt = $createdAt;
 
         return $this;
     }
