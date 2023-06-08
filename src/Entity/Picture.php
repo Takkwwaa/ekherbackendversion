@@ -20,7 +20,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
     normalizationContext: ["groups" => ["read"]],
     denormalizationContext: ["groups" => ["write"]]
 )]
-#[Get()]
+#[Get(outputFormats: ["json"])]
+#[Post()]
+#[Put(inputFormats: ['multipart' => ['multipart/form-data']])]
+#[Patch(inputFormats: ['multipart' => ['multipart/form-data']])]
+#[Delete()]
 #[Post(inputFormats: ['multipart' => ['multipart/form-data']])]
 #[Vich\Uploadable]
 class Picture
@@ -28,6 +32,7 @@ class Picture
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(["read"])]
     private ?int $id = null;
 
     // NOTE: This is not a mapped field of entity metadata, just a simple property.
@@ -36,12 +41,15 @@ class Picture
     private ?File $imageFile = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(["read"])]
     private ?string $imageName = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(["read"])]
     private ?int $imageSize = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(["read"])]
     private ?\DateTimeImmutable $updatedAt = null;
 
 

@@ -34,13 +34,14 @@ class Store
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
     #[Groups(['read', 'write'])]
     private ?string $name = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, unique: true)]
     #[Groups(['read', 'write'])]
     private ?string $email = null;
 
@@ -70,16 +71,23 @@ class Store
     private ?Category $Category = null;
 
     #[ORM\Column]
+    #[Groups(['read', 'write'])]
     private ?bool $isEnabled = null;
 
     #[ORM\Column]
+    #[Groups(['read', 'write'])]
     private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    #[Groups(['read', 'write'])]
+    private ?Localisation $localisation = null;
 
     public function __construct()
     {
         $this->pictures = new ArrayCollection();
         $this->isEnabled = 1;
         $this->createdAt =  CarbonImmutable::now();
+        $this->localisation = new Localisation();
     }
 
     public function getId(): ?int
@@ -235,6 +243,18 @@ class Store
     public function setCreatedAt(\DateTimeImmutable $createdAt): self
     {
         $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getLocalisation(): ?Localisation
+    {
+        return $this->localisation;
+    }
+
+    public function setLocalisation(?Localisation $localisation): self
+    {
+        $this->localisation = $localisation;
 
         return $this;
     }
