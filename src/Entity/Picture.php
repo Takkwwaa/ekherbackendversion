@@ -67,8 +67,15 @@ class Picture
     #[ORM\OneToOne(inversedBy: 'logo', cascade: ['persist', 'remove'])]
     private ?Store $store = null;
 
-    #[ORM\OneToOne(inversedBy: 'avatar', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(inversedBy: 'avatar', cascade: ['remove'])]
     private ?User $user = null;
+
+    #[ORM\ManyToOne(inversedBy: 'Pictures')]
+    private ?Gallery $gallery = null;
+    public function __construct()
+    {
+        $this->imageFile = null;
+    }
 
     public function getId(): ?int
     {
@@ -120,5 +127,17 @@ class Picture
     public function getImageSize(): ?int
     {
         return $this->imageSize;
+    }
+
+    public function getGallery(): ?Gallery
+    {
+        return $this->gallery;
+    }
+
+    public function setGallery(?Gallery $gallery): self
+    {
+        $this->gallery = $gallery;
+
+        return $this;
     }
 }

@@ -62,9 +62,6 @@ class Store
     #[Groups(['read', 'write'])]
     private ?Picture $logo = null;
 
-    #[ORM\OneToMany(mappedBy: 'store', targetEntity: Gallery::class, orphanRemoval: true)]
-    #[Groups(['read', 'write'])]
-    private Collection $pictures;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     #[Groups(['read', 'write'])]
@@ -82,9 +79,12 @@ class Store
     #[Groups(['read', 'write'])]
     private ?Localisation $localisation = null;
 
+    #[ORM\OneToOne(inversedBy: 'store', cascade: ['persist', 'remove'])]
+    private ?Gallery $gallery = null;
+
     public function __construct()
     {
-        $this->pictures = new ArrayCollection();
+
         $this->isEnabled = 1;
         $this->createdAt =  CarbonImmutable::now();
         $this->localisation = new Localisation();
@@ -181,35 +181,7 @@ class Store
         return $this;
     }
 
-    /**
-     * @return Collection<int, Gallery>
-     */
-    public function getPictures(): Collection
-    {
-        return $this->pictures;
-    }
 
-    public function addPicture(Gallery $picture): self
-    {
-        if (!$this->pictures->contains($picture)) {
-            $this->pictures->add($picture);
-            $picture->setStore($this);
-        }
-
-        return $this;
-    }
-
-    public function removePicture(Gallery $picture): self
-    {
-        if ($this->pictures->removeElement($picture)) {
-            // set the owning side to null (unless already changed)
-            if ($picture->getStore() === $this) {
-                $picture->setStore(null);
-            }
-        }
-
-        return $this;
-    }
 
     public function getCategory(): ?Category
     {
@@ -255,6 +227,18 @@ class Store
     public function setLocalisation(?Localisation $localisation): self
     {
         $this->localisation = $localisation;
+
+        return $this;
+    }
+
+    public function getGallery(): ?Gallery
+    {
+        return $this->gallery;
+    }
+
+    public function setGallery(?Gallery $gallery): self
+    {
+        $this->gallery = $gallery;
 
         return $this;
     }
